@@ -19,99 +19,28 @@ class MT_Import{
 		return fclose($fp);
  	}
 
-  function mt_Build() {
+  //更新文章数；
+  function mt_Build(&$article) {
     global $zbp;
-    $comm_list = $zbp->GetCommentList();
-    $post_list = $zbp->GetPostList();
-    $tag_list = $zbp->GetTagList();
-    $member_list = $zbp->GetMemberList();
-    $catagory_list = $zbp->GetCategoryList();
-    //关联评论用户ID
-    foreach ($comm_list as $o) {
-      foreach ($member_list as $m) {
-        if (($o->Name) == ($m->Name)) {
-          $comm = new Comment;
-          $comm->LoadInfoByID($o->ID);
-          $comm->AuthorID = $m->ID;
-          $comm->Save();
-        }
-      }
-    }
-    /* //更新章统计
-    foreach ($post_list as $p) {
-      $post = new Post;
-      $post->LoadInfoByID($p->ID);
-      $post->Save();
-    }
-    //更新标签统计
-    foreach ($tag_list as $t) {
-      $tag = new Tag;
-      $tag->LoadInfoByID($t->ID);
-      $tag->Save();
-    }
-    //更新分类统计
-    foreach ($catagory_list as $c) {
-      $cata = new Category;
-      $cata->LoadInfoByID($c->ID);
-      $cata->Save();
-    }
-    //更新用户统计
-    foreach ($member_list as $m) {
-      $mem = new Member;
-      $mem->LoadInfoByID($m->ID);
-      $mem->Save();
-    } */
-    //更新全局统计
-    $zbp->BuildTemplate();
-    $all_artiles = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(log_ID) AS num FROM ' . $GLOBALS['table']['Post'] . ' WHERE log_Type=0') , 'num');
-    $all_pages = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(log_ID) AS num FROM ' . $GLOBALS['table']['Post'] . ' WHERE log_Type=1') , 'num');
-    $all_categorys = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(cate_ID) AS num FROM ' . $GLOBALS['table']['Category']) , 'num');
-    $all_comments = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(comm_ID) AS num FROM ' . $GLOBALS['table']['Comment']) , 'num');
-    $all_views = GetValueInArrayByCurrent($zbp->db->Query('SELECT SUM(log_ViewNums) AS num FROM ' . $GLOBALS['table']['Post']) , 'num');
-    $all_tags = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(tag_ID) as num FROM ' . $GLOBALS['table']['Tag']) , 'num');
-    $all_members = GetValueInArrayByCurrent($zbp->db->Query('SELECT COUNT(mem_ID) AS num FROM ' . $GLOBALS['table']['Member']) , 'num');
-    $s = $zbp->db->sql->Count($zbp->table['Post'], array(
-      array(
-        'COUNT',
-        '*',
-        'num'
-      )
-    ) , array(
-      array(
-        '=',
-        'log_Type',
-        0
-      ) ,
-      array(
-        '=',
-        'log_IsTop',
-        0
-      ) ,
-      array(
-        '=',
-        'log_Status',
-        0
-      )
-    ));
-    $num = GetValueInArrayByCurrent($zbp->db->Query($s) , 'num');
-    $zbp->LoadConfigs();
-    $zbp->LoadCache();
-    $zbp->cache->normal_article_nums = $num;
-    $zbp->SaveCache();
-    $zbp->AddBuildModule('statistics', array(
-      $all_artiles,
-      $all_pages,
-      $all_categorys,
-      $all_tags,
-      $all_views,
-      $all_comments
-    ));
+    if($article->Tag)
+      CountTagArrayString($article->Tag, +1 ,$article->ID);
+    //$zbp->LoadMembers();
+    CountMemberArray(array($article->AuthorID), array(+1, 0, 0, 0));
+    $zbp->LoadCategorys();
+    CountCategoryArray(array($article->CateID), +1);
+    if($zbp->option['ZC_LARGE_DATA'] == false)
+      CountPostArray(array($article->ID));
+    if($article->IsTop==0 && $article->Status==ZC_POST_STATUS_PUBLIC)
+      CountNormalArticleNums(+1);
+    if($article->IsTop == true && $article->Status==ZC_POST_STATUS_PUBLIC)
+      CountTopArticle($article->ID,null);
     $zbp->BuildModule();
   }
 
+  //获取作者ID
   function get_AuthorID($name) {
     global $zbp;
-    $zbp->LoadCategorys();
+    //$zbp->LoadMembers();
     $o = $zbp->GetMemberByName($name);
     if ($o->ID == 0) {
       $o->Name = $name;
@@ -120,9 +49,10 @@ class MT_Import{
     return $o->ID;
   }
 
+  //获取分类ID
   function get_CateID($name) {
     global $zbp;
-    $zbp->LoadCategorys();
+    //$zbp->LoadCategorys();
     $o = $zbp->GetCategoryByName($name);
     if ($o->ID == 0) {
       $o->Name = $name;
@@ -131,17 +61,28 @@ class MT_Import{
     return $o->ID;
   }
 
-  function save_post(&$post, &$comments){
+  var $PostsArray = array();
+  var $Check_PA = false;
+  function get_PostArray(){
     global $zbp;
     $postlist = $zbp->GetPostList('log_Title');
     foreach ($postlist as $key => $value){
-      if ($post->Title == $value->Title); 
-        return false;
+      $this->PostsArray[] = $value->Title;
     }
-    // $post->LoadInfoByID(0);
+    $this->Check_PA = true;
+  }
+
+  function save_post(&$post, &$comments){
+    global $zbp;
+    if(!$this->Check_PA)
+      $this->get_PostArray();
+    if(in_array($post->Title,$this->PostsArray)){
+      echo($post->Title."已存在<br/>");
+      return;
+    }
+
     $post->CateID = $this->get_CateID($post->CateID);
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
-    $post->Type = 0; //?
     $post->Tag = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
 
     $post->Content = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Content);
@@ -161,10 +102,19 @@ class MT_Import{
     $post->Intro = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
 
     $post->Save();
+    $this->mt_Build($post);
+    echo('[OK]'.$post->Title."<br/>");
 
+    //$zbp->LoadMembers();
 
-
-    foreach ( $comments as $comment ) {}
+    foreach ($comments as $comment) {
+      $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
+      $comment->LogID=$post->ID;
+      $comment->Save();
+      CountPostArray(array($comment->LogID), +1);
+      CountCommentNums(+1,0); 
+    }
+    
   }
 
   function process_posts() {
@@ -185,9 +135,6 @@ class MT_Import{
 				if ( 'comment' == $context ) {
 					$comments[] = $comment;
 					$comment = new Comment;
-				} else if ( 'ping' == $context ) {
-					//$pings[] = $ping;
-					//$ping = new StdClass();
 				}
 				$context = '';
 			} else if ( '--------' == $line ) {
@@ -224,8 +171,13 @@ class MT_Import{
 					$post->Alias = $slug;
 			} else if ( 0 === strpos($line, 'STATUS:') ) {
 				$status = trim( strtolower( substr($line, strlen('STATUS:')) ) );
-				if ( empty($status) )
-					$status = 1 ;
+				if ( $status == 'publish' ){
+					$status = 0;
+        }else if ( $status == 'draft' ){
+          $status = 1;
+        }else if ( $status == 'private' ){
+          $status = 2;
+        }
 				$post->Status = $status;
 			} else if ( 0 === strpos($line, 'ALLOW COMMENTS:') ) {
 				$allow = trim( substr($line, strlen('ALLOW COMMENTS:')) );
@@ -233,10 +185,22 @@ class MT_Import{
 					$post->IsLock = 0;
 				else
 					$post->IsLock = 1;
-			} else if ( 0 === strpos($line, 'CATEGORY:') ) {
+      } else if ( 0 === strpos($line, 'ISPAGE:') ) {
+				$type = trim( substr($line, strlen('ISPAGE:')) );
+				if ( $type == 0 )
+					$post->Type = 0;
+				else
+					$post->Type = 1;
+      } else if ( 0 === strpos($line, 'ISTOP:') ) {
+				$IsTop = trim( substr($line, strlen('ISTOP:')) );
+				if ( $IsTop == 0 )
+					$post->IsTop = 0;
+				else
+					$post->IsTop = 1;
+      } else if ( 0 === strpos($line, 'CATEGORY:') ) {
 				$category = trim( substr($line, strlen('CATEGORY:')) );
 				if ( '' != $category )
-					$post->CateID = $category;  //TD
+					$post->CateID = $category;
 			} else if ( 0 === strpos($line, 'PRIMARY CATEGORY:') ) {
 				$category = trim( substr($line, strlen('PRIMARY CATEGORY:')) );
 				if ( '' != $category )
@@ -248,7 +212,6 @@ class MT_Import{
 				//$date_gmt = get_gmt_from_date($date);
 				if ( '' == $context ) {
 					$post->PostTime = $date;
-          //print_r $date;
 				} else if ( 'comment' == $context ) {
 					$comment->PostTime = $date;
 				}
@@ -264,6 +227,10 @@ class MT_Import{
         $url = trim( substr($line, strlen('URL:')) );
         if ( 'comment' == $context )
           $comment->HomePage = $url;
+      } else if ( 0 === strpos($line, 'AGENT:') ) {
+        $url = trim( substr($line, strlen('AGENT:')) );
+        if ( 'comment' == $context )
+          $comment->Agent = $url;
       } else {
 				// Processing multi-line field, check context.
 				if( !empty($line) )
@@ -275,7 +242,7 @@ class MT_Import{
 				} else if ( 'excerpt' == $context ) {
 					$post->Intro .= $line;
 				} else if ( 'keywords' == $context ) {
-					$post->Tag .= ','.$line;
+					$post->Tag .= $line;
 				} else if ( 'comment' == $context ) {
 					$comment->Content .= $line;
 				}
