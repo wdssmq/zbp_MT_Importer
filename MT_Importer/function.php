@@ -160,7 +160,11 @@ class MT_Import{
 				if ( '' == $context )
 					$post->AuthorID = $author;
 				else if ( 'comment' == $context )
-					 $comment->Name = $author;
+          $comment->Name = $author;
+			} else if ( 0 === strpos($line, 'ID:') ) {
+				$ID = trim( substr($line, strlen('ID:')) );
+				if ( '' == $context )
+					$post->ID = $ID;
 			} else if ( 0 === strpos($line, 'TITLE:') ) {
 				$title = trim( substr($line, strlen('TITLE:')) );
 				if ( '' == $context )
