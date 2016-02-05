@@ -232,9 +232,9 @@ class MT_Import{
         if ( 'comment' == $context )
           $comment->HomePage = $url;
       } else if ( 0 === strpos($line, 'AGENT:') ) {
-        $url = trim( substr($line, strlen('AGENT:')) );
+        $agent = trim( substr($line, strlen('AGENT:')) );
         if ( 'comment' == $context )
-          $comment->Agent = $url;
+          $comment->Agent = $agent;
       } else {
 				// Processing multi-line field, check context.
 				if( !empty($line) )
