@@ -143,7 +143,7 @@ class MT_Import{
 				$result = $this->save_post($post, $comments);
 					//return $result;
 				$post = new Post;
-				$comment = new Comment;
+				// $comment = new Comment;
 				$comments = array();
 			} else if ( 'BODY:' == $line ) {
 				$context = 'body';
@@ -161,13 +161,13 @@ class MT_Import{
 					$post->AuthorID = $author;
 				else if ( 'comment' == $context )
           $comment->Name = $author;
-			} else if ( 0 === strpos($line, 'ID:') ) {
-				$ID = trim( substr($line, strlen('ID:')) );
-				if ( '' == $context )
-					$post->ID = $ID;
+			// } else if ( 0 === strpos($line, 'ID:') ) {
+				// $ID = trim( substr($line, strlen('ID:')) );
+				// if ( '' == $context )
+					// $post->ID = (int)($ID);
 			} else if ( 0 === strpos($line, 'TITLE:') ) {
 				$title = trim( substr($line, strlen('TITLE:')) );
-				if ( '' == $context )
+				// if ( '' == $context )
 					$post->Title = $title;
 			} else if ( 0 === strpos($line, 'BASENAME:')){
 				$slug = trim( substr($line, strlen('BASENAME:')) );
@@ -232,9 +232,9 @@ class MT_Import{
         if ( 'comment' == $context )
           $comment->HomePage = $url;
       } else if ( 0 === strpos($line, 'AGENT:') ) {
-        $agent = trim( substr($line, strlen('AGENT:')) );
+        $url = trim( substr($line, strlen('AGENT:')) );
         if ( 'comment' == $context )
-          $comment->Agent = $agent;
+          $comment->Agent = $url;
       } else {
 				// Processing multi-line field, check context.
 				if( !empty($line) )
