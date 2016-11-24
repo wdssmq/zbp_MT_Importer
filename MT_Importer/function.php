@@ -74,13 +74,18 @@ class MT_Import{
 
   function save_post(&$post, &$comments){
     global $zbp;
+    echo $post->ID;
     if(!$this->Check_PA)
       $this->get_PostArray();
     if(in_array($post->Title,$this->PostsArray)){
-      echo($post->Title."已存在<br/>");
+      echo($post->Title." 已存在<br/>");
       return;
     }
-
+    if ($post->ID !== 0){
+      $keyvalue=array('log_ID'=>$post->ID,'log_Intro'=>'','log_Content'=>'','log_Meta'=>'');
+      $sql = $zbp->db->sql->Insert($GLOBALS['table']['Post'],$keyvalue);
+      $zbp->db->Insert($sql);
+    }
     $post->CateID = $this->get_CateID($post->CateID);
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
@@ -89,7 +94,6 @@ class MT_Import{
     $post->Content = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     $post->Content = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     $post->Content = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
-    $post->Content = str_replace('href="http://upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     $post->Content = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
 
@@ -97,7 +101,6 @@ class MT_Import{
     $post->Intro = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     $post->Intro = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     $post->Intro = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
-    $post->Intro = str_replace('href="http://upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     $post->Intro = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
     $post->Intro = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
 
@@ -112,9 +115,9 @@ class MT_Import{
       $comment->LogID=$post->ID;
       $comment->Save();
       CountPostArray(array($comment->LogID), +1);
-      CountCommentNums(+1,0); 
+      CountCommentNums(+1,0);
     }
-    
+
   }
 
   function process_posts() {
@@ -161,10 +164,10 @@ class MT_Import{
 					$post->AuthorID = $author;
 				else if ( 'comment' == $context )
           $comment->Name = $author;
-			// } else if ( 0 === strpos($line, 'ID:') ) {
-				// $ID = trim( substr($line, strlen('ID:')) );
-				// if ( '' == $context )
-					// $post->ID = (int)($ID);
+      } else if ( 0 === strpos($line, 'ID:') ) {
+        $ID = trim( substr($line, strlen('ID:')) );
+        if ( '' == $context )
+          $post->ID = (int)($ID);
 			} else if ( 0 === strpos($line, 'TITLE:') ) {
 				$title = trim( substr($line, strlen('TITLE:')) );
 				// if ( '' == $context )
