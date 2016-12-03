@@ -10,33 +10,42 @@ $blogtitle='MovableType数据格式导入';
 require $blogpath . 'zb_system/admin/admin_header.php';
 require $blogpath . 'zb_system/admin/admin_top.php';
 require_once 'function.php';
-// InstallPlugin_MovableType_Importer();
+InstallPlugin_MovableType_Importer();
 ?>
 <div id="divMain">
   <div class="divHeader"><?php echo $blogtitle;?></div>
   <div class="SubMenu"><?php require 'about.php';?></div>
   <div id="divMain2">
-    <h3>导入 Moveable Type</h3>
-    <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType.txt</code> 到<code>zb_users/plugin/MT_Importer/input</code>文件夹内然后点击导入</p>
-    <p>2、相同Title的文章只会导入一次，文章过多时请尝试分段导入； </p>
+    <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType-*.txt</code> 到<code>zb_users/plugin/MT_Importer/input</code>文件夹内然后点击导入</p>
+    <p>2、相同Title的文章只会导入一次，Title不同的已存在ID可选择覆盖； </p>
+    <p>3、建议单个文件内文章数不超过300，单次导入总文章数不超过3000； </p>
     <form class="import-upload-form" action="main.php" method="post">
       <input type="hidden" value="import" name="act">
+      <p style="margin:0 0.5em"><input type="checkbox" name="override" value="true" /> <label for="override">覆盖同ID文章</label></p>
       <p class="submit">
-        <input type="submit" value="导入" class="button"> <a href="main.php">刷新</a>
+      <input type="submit" value="导入" class="button"> <a href="main.php">刷新</a>
       </p>
     </form>
     <?php
-    if ($_POST && $_POST['act'] == 'import') {
+    // CountMemberArray(array(1,2386), array( null, null, 0, 0 ));
+
+    if(GetVars('act','POST')=='import'){
       $dir = ZBP_PATH . 'zb_users/plugin/MT_Importer/input/';
       $arrfiles = GetFilesInDir($dir, "txt");
       $countfiles = count($arrfiles);
-      foreach ($arrfiles as $filename => $filepath) {
-        $mt_import = new MT_Import();
-        $mt_import->file=$filepath;
-        $mt_import->process_posts();
+      $mt_import = new MT_Import();
+      if(GetVars('override','POST')=='true'){
+        $mt_import->override = true;
+      }
+      if ($countfiles < 13){
+        foreach ($arrfiles as $filename => $filepath) {
+          echo MT_checkBOM($filepath,$filename);
+          $mt_import->file=$filepath;
+          $mt_import->process_posts();
+        }
       }
       $zbp->SetHint('good');
-      //Redirect('./main.php');
+      $zbp->BuildModule();
     }
     ?>
   </div><br /><br />
