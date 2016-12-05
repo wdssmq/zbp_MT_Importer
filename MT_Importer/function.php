@@ -10,30 +10,32 @@ function MT_checkBOM($path,$filename)
 }
 class MT_Import
 {
-  public $file;
-  
-  public $override = false;
-  
   function fopen($filename, $mode = 'r')
   {
     return fopen($filename, $mode);
   }
-  
+
   function feof($fp)
   {
     return feof($fp);
   }
-  
+
   function fgets($fp, $len = 10000)
   {
     return fgets($fp, $len);
   }
-  
+
   function fclose($fp)
   {
     return fclose($fp);
   }
-  
+
+  public $file;
+
+  public $override = false;
+
+  public $qianzhi = false;
+
   //更新文章数；
   function mt_Build(&$article, $m = +1)
   {
@@ -59,6 +61,18 @@ class MT_Import
       CountTopArticle(null, null);
   }
   
+  function mt_Done(){
+    global $zbp;
+    $zbp->AddBuildModule('previous');
+    $zbp->AddBuildModule('calendar');
+    $zbp->AddBuildModule('comments');
+    $zbp->AddBuildModule('archives');
+    $zbp->AddBuildModule('tags');
+    $zbp->AddBuildModule('authors');
+    $zbp->BuildModule();
+    $zbp->SaveCache();
+  }
+
   //获取作者ID
   function get_AuthorID($name)
   {
@@ -71,7 +85,7 @@ class MT_Import
     }
     return $o->ID;
   }
-  
+
   //获取分类ID
   function get_CateID($name)
   {
@@ -84,7 +98,7 @@ class MT_Import
     }
     return $o->ID;
   }
-  
+
   private $PostsArray = array();
   private $Check_PA = false;
   function get_PostArray()
@@ -96,21 +110,21 @@ class MT_Import
     }
     $this->Check_PA = true;
   }
-  
+
   function save_post(&$post, &$comments)
   {
     global $zbp;
     $exist = " <b style=\"color:red\">已存在</b>；<br/>";
-    echo $post->ID . "、";
     if (!$this->Check_PA)
       $this->get_PostArray();
     if (in_array($post->Title, $this->PostsArray)) {
-      echo ($post->Title . $exist);
-      return;
+      echo ($post->ID . "、" . $post->Title . $exist);
+      if (!$this->qianzhi)
+        return;
     } else {
       $this->PostsArray[] = $post->Title;
     }
-    
+
     if ($post->ID !== 0) {
       $sql   = $zbp->db->sql->Select($zbp->table['Post'], array(
         'log_ID'
@@ -123,11 +137,12 @@ class MT_Import
       ));
       $array = $zbp->db->Query($sql);
       if (count($array) > 0) {
-        echo ($post->ID . $exist);
-        if (!$this->override)
-          return;
         $article = new Post();
         $article->LoadInfoByID($post->ID);
+        echo ($post->ID . "、" .$article->Title . $exist);
+        if (!$this->override)
+          return;
+        // echo ($post->ID . "、" . "强制写入");
         $this->mt_Build($article, -1);
         DelArticle_Comments($article->ID);
       } else {
@@ -144,26 +159,26 @@ class MT_Import
     $post->CateID   = $this->get_CateID($post->CateID);
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
-    
+
     // $post->Content = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Content);
     // $post->Content = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     // $post->Content = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     // $post->Content = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     $post->Content = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
-    
+
     // $post->Intro = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Intro);
     // $post->Intro = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     // $post->Intro = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     // $post->Intro = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     $post->Intro = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
     $post->Intro = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
-    echo $post->Save();
+    $post->Save();
     $this->mt_Build($post);
-    echo ('[OK]' . $post->Title . "<br/>");
-    
+    echo ($post->ID . "、" . $post->Title . " <b>写入成功</b><br/>");
+
     //$zbp->LoadMembers();
-    
+
     foreach ($comments as $comment) {
       $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
       $comment->LogID    = $post->ID;
@@ -174,19 +189,19 @@ class MT_Import
       CountCommentNums(+1, 0);
     }
   }
-  
+
   function process_posts()
   {
     global $zbp;
     $handle = $this->fopen($this->file, 'r');
     if ($handle == null)
       return false;
-    
+
     $context  = '';
     $post     = new Post;
     $comment  = new Comment;
     $comments = array();
-    
+
     while ($line = fgets($handle)) {
       $line = trim($line);
       if ('-----' == $line) {

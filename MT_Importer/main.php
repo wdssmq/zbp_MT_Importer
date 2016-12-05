@@ -27,8 +27,6 @@ InstallPlugin_MovableType_Importer();
       </p>
     </form>
     <?php
-    // CountMemberArray(array(1,2386), array( null, null, 0, 0 ));
-
     if(GetVars('act','POST')=='import'){
       $dir = ZBP_PATH . 'zb_users/plugin/MT_Importer/input/';
       $arrfiles = GetFilesInDir($dir, "txt");
@@ -44,8 +42,8 @@ InstallPlugin_MovableType_Importer();
           $mt_import->process_posts();
         }
       }
+      $mt_import->mt_Done();
       $zbp->SetHint('good');
-      $zbp->BuildModule();
     }
     ?>
   </div><br /><br />
