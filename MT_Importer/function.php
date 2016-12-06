@@ -42,23 +42,13 @@ class MT_Import
     global $zbp;
     if ($article->Tag)
       CountTagArrayString($article->Tag, $m, $article->ID);
-    CountMemberArray(array(
-      $article->AuthorID
-    ), array(
-      $m,
-      0,
-      0,
-      0
-    ));
+    if ($article->Type == 0)
+      CountMemberArray(array($article->AuthorID ), array($m, 0, 0, 0));
+    else ($article->Type == 1)
+      CountMemberArray(array($article->AuthorID ), array(0, $m, 0, 0));
     CountCategoryArray(array(
       $article->CateID
     ), $m);
-    // if ($zbp->option['ZC_LARGE_DATA'] == false)
-    // CountPostArray(array($article->ID));
-    if ($article->IsTop == 0 && $article->Status == ZC_POST_STATUS_PUBLIC)
-      CountNormalArticleNums($m);
-    if ($article->IsTop == true && $article->Status == ZC_POST_STATUS_PUBLIC)
-      CountTopArticle(null, null);
   }
   
   function mt_Done(){
@@ -261,13 +251,13 @@ class MT_Import
           $post->IsLock = 1;
       } else if (0 === strpos($line, 'ISPAGE:')) {
         $type = trim(substr($line, strlen('ISPAGE:')));
-        if ($type == 0)
+        if ((int)$type == 0)
           $post->Type = 0;
         else
           $post->Type = 1;
       } else if (0 === strpos($line, 'ISTOP:')) {
         $IsTop = trim(substr($line, strlen('ISTOP:')));
-        if ($IsTop == 0)
+        if ((int)$IsTop == 0)
           $post->IsTop = 0;
         else
           $post->IsTop = 1;
