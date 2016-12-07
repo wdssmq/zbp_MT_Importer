@@ -44,7 +44,7 @@ class MT_Import
       CountTagArrayString($article->Tag, $m, $article->ID);
     if ($article->Type == 0)
       CountMemberArray(array($article->AuthorID ), array($m, 0, 0, 0));
-    else ($article->Type == 1)
+    elseif ($article->Type == 1)
       CountMemberArray(array($article->AuthorID ), array(0, $m, 0, 0));
     CountCategoryArray(array(
       $article->CateID
@@ -53,6 +53,7 @@ class MT_Import
   
   function mt_Done(){
     global $zbp;
+    $zbp->AddBuildModule('catalog');
     $zbp->AddBuildModule('previous');
     $zbp->AddBuildModule('calendar');
     $zbp->AddBuildModule('comments');
