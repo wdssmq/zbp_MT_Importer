@@ -148,6 +148,10 @@ class MT_Import
       }
     }
     $post->CateID   = $this->get_CateID($post->CateID);
+    if ($post->CateID >4){
+      copy($this->file,"debug.txt");
+      return false;
+    }
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
 
