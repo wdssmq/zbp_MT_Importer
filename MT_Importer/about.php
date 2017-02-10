@@ -1,10 +1,36 @@
-<style type="text/css">#divMain .SubMenu {height: auto;}</style>
-<a href="javascript:;" style="float: right;" onclick="$('#help').slideToggle();" title="查看/隐藏关于"><span class="m-right">[关于]</span></a>
+<style type="text/css">
+#divMain .SubMenu {height: auto;}
+i.xnxf-tip {
+	background-color: red;
+	border-radius: 7px;
+	height: 7px;
+	padding: 0;
+	position: relative;
+	right: 8px;
+	top: -3px;
+	width: 7px;
+}
+#help a {
+  background-color:#fff;
+}
+#help a.t-qq {
+	background: url("http://mat1.gtimg.com/app/vt/images/follow/quickfollowbgnew.gif?v=1215");
+	background-position: -31px -230px;
+	height: 28px;
+	text-indent: -20em;
+	width: 70px;
+}
+</style>
+<i class="xnxf-tip" style="float: right"></i>
+<a href="javascript:;" style="float: right;" onclick="$('#help,#divMain2').slideToggle();$('.xnxf-tip').animate({opacity: 0});SetCookie('xnxf-tip', 'xnxf', 365)" title="查看/隐藏关于"><span class="m-right">[关于]</span></a>
 <div id="help" style="display:none;clear: both">
 <table>
 <tr>
+	<td colspan="3" style="text-align: center">置百丈玄冰而崩裂，掷须臾池水而漂摇。</td>
+</tr>
+<tr>
   <td>微博：</td>
-  <td><a title="沉冰浮水的微博" target="_blank" href="http://t.qq.com/wdssmq">沉冰浮水</a></td>
+  <td><a class="t-qq" href="http://t.qq.com/wdssmq" title="@沉冰浮水">@沉冰浮水</a></td>
   <td><a title="沉冰浮水的微博" target="_blank" href="http://t.qq.com/wdssmq">http://t.qq.com/wdssmq</a></td>
 </tr>
 <tr>
@@ -24,3 +50,10 @@
 </tr>
 </table>
 </div>
+<div style="clear: both"></div>
+<script type="text/javascript">
+if(GetCookie("xnxf-tip")=="xnxf"){
+  //$('.xnxf-tip').hide();
+  $('.xnxf-tip').css({opacity: 0});
+}
+</script>
