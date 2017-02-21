@@ -89,7 +89,8 @@ class MT_Import
     if ($o->ID == 0) {
       file_put_contents("debug.txt", $name . "\n", FILE_APPEND);
       copy($this->file, "debug2.txt");
-      return $o->ID;
+      if ($name == 0 || $name == "0")
+        return 99;
       $o->Name = $name;
       $o->Save();
       $zbp->LoadCategorys();
@@ -150,8 +151,8 @@ class MT_Import
         $zbp->db->Insert($sql);
       }
     }
-    $post->CateID = $this->get_CateID($post->CateID);
-    if ($post->CateID == 0)
+    $post->CateID   = $this->get_CateID($post->CateID);
+    if($post->CateID==99)
       return false;
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
