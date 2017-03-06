@@ -28,6 +28,8 @@ class MT_Import
   }
   public $file;
   public $override = false;
+  public $asnew = false;
+  public $prefix = "none";
   //更新文章数；
   function mt_Build(&$article, $m = +1)
   {
@@ -87,10 +89,11 @@ class MT_Import
     global $zbp;
     $o = $zbp->GetCategoryByName($name);
     if ($o->ID == 0) {
-      file_put_contents("debug.txt", $name . "\n", FILE_APPEND);
-      copy($this->file, "debug2.txt");
-      if ($name == 0 || $name == "0")
+      if ($name === 0 || $name === "0"){
+        file_put_contents("debug.txt", $name . "\n", FILE_APPEND);
+        copy($this->file, "debug2.txt");
         return 99;
+      }
       $o->Name = $name;
       $o->Save();
       $zbp->LoadCategorys();
@@ -114,8 +117,9 @@ class MT_Import
     $exist = " <b style=\"color:red\">已存在</b>；<br/>";
     if (!$this->Check_PA)
       $this->get_PostArray();
-    if (in_array($post->Title, $this->PostsArray) && $post->ID == 0) {
-      echo ($post->ID . "、" . $post->Title . $exist . "<b>请检查</b>");
+    if (in_array($post->Title, $this->PostsArray) && ($post->ID == 0 || $this->asnew)) {
+    //if (in_array($post->Title, $this->PostsArray) && $post->ID == 0) {
+      echo ($post->ID . "、" . $post->Title . $exist);
       return;
     } else {
       $this->PostsArray[] = $post->Title;
@@ -135,11 +139,19 @@ class MT_Import
         $article = new Post();
         $article->LoadInfoByID($post->ID);
         echo ($post->ID . "、" . $article->Title . $exist);
-        if (!$this->override)
+        if (!$this->override && !$this->asnew)
           return;
         // echo ($post->ID . "、" . "强制写入");
-        $this->mt_Build($article, -1);
-        DelArticle_Comments($article->ID);
+        if ($this->asnew){
+          if($post->Alias == "" || $post->Alias == $post->ID){
+            if ($this->prefix !== "none")
+                $post->Alias = $this->prefix . $post->ID;
+          }
+          $post->ID = 0;
+        }else{
+          $this->mt_Build($article, -1);
+          DelArticle_Comments($article->ID);
+        }
       } else {
         $keyvalue = array(
           'log_ID' => $post->ID,
