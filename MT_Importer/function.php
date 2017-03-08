@@ -90,8 +90,9 @@ class MT_Import
     $o = $zbp->GetCategoryByName($name);
     if ($o->ID == 0) {
       if ($name === 0 || $name === "0"){
-        file_put_contents("debug.txt", $name . "\n", FILE_APPEND);
-        copy($this->file, "debug2.txt");
+        @mkdir("cache",0755);
+        file_put_contents("cache/debug.txt", $name . "\n", FILE_APPEND);
+        copy($this->file, "cache/input.txt");
         return 99;
       }
       $o->Name = $name;
@@ -164,8 +165,10 @@ class MT_Import
       }
     }
     $post->CateID   = $this->get_CateID($post->CateID);
-    if($post->CateID==99)
+    if($post->CateID==99){
+      file_put_contents("cache/debug.txt", $post->Title . "\n", FILE_APPEND);
       return false;
+    }
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
     // $post->Content = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Content);
