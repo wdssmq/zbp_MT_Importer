@@ -1,9 +1,9 @@
 <?php
 function MT_checkBOM($path, $filename)
 {
-  $contents = RemoveBOM(file_get_contents($path));
+  $contents = trim(RemoveBOM(file_get_contents($path)));
   if (file_put_contents($path, $contents)) {
-    return ("开始导入 $filename <br />");
+    return ("开始导入 $filename <br /><br />");
   } else {
     return "";
   }
@@ -87,19 +87,35 @@ class MT_Import
   function get_CateID($name)
   {
     global $zbp;
-    $o = $zbp->GetCategoryByName($name);
-    if ($o->ID == 0) {
-      if ($name === 0 || $name === "0"){
-        @mkdir("cache",0755);
-        file_put_contents("cache/debug.txt", $name . "\n", FILE_APPEND);
-        copy($this->file, "cache/input.txt");
-        return 99;
+    $arrCates = explode(">>", $name);
+    $ParentID = 0;
+    foreach ($arrCates as $key => $value) {
+      if($value=="")
+        continue;
+      $result = $zbp->GetCategoryList(null, array(
+        array(
+          '=',
+          'cate_Name',
+          trim($value)
+        ),
+        array(
+          '=',
+          'cate_ParentID',
+          $ParentID
+        )
+      ), null, 1);
+      if (count($result) == 0) {
+        $cate           = new Category();
+        $cate->Name     = trim($value);
+        $cate->ParentID = $ParentID;
+        $cate->Save();
+        $zbp->LoadCategorys();
+      } else {
+        $cate = $result[0];
       }
-      $o->Name = $name;
-      $o->Save();
-      $zbp->LoadCategorys();
+      $ParentID = $cate->ID;
     }
-    return $o->ID;
+    return $cate->ID;
   }
   private $PostsArray = array();
   private $Check_PA = false;
@@ -108,19 +124,21 @@ class MT_Import
     global $zbp;
     $postlist = $zbp->GetPostList('log_Title');
     foreach ($postlist as $key => $value) {
-      $this->PostsArray[] = $value->Title;
+      $this->PostsArray[$value->ID] = $value->Title;
     }
     $this->Check_PA = true;
   }
   function save_post(&$post, &$comments)
   {
     global $zbp;
-    $exist = " <b style=\"color:red\">已存在</b>；<br/>";
+    $tips = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
+    $exist = " <b style=\"color:red\">已存在</b>；<br/><br/>";
+    $done = " <b>写入成功</b>；<br/><br/>";
     if (!$this->Check_PA)
       $this->get_PostArray();
     if (in_array($post->Title, $this->PostsArray) && ($post->ID == 0 || $this->asnew)) {
-    //if (in_array($post->Title, $this->PostsArray) && $post->ID == 0) {
-      echo ($post->ID . "、" . $post->Title . $exist);
+      $post = GetPost($post->Title);
+      echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $exist;
       return;
     } else {
       $this->PostsArray[] = $post->Title;
@@ -139,17 +157,17 @@ class MT_Import
       if (count($array) > 0) {
         $article = new Post();
         $article->LoadInfoByID($post->ID);
-        echo ($post->ID . "、" . $article->Title . $exist);
+        echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $exist;
         if (!$this->override && !$this->asnew)
           return;
         // echo ($post->ID . "、" . "强制写入");
-        if ($this->asnew){
-          if($post->Alias == "" || $post->Alias == $post->ID){
+        if ($this->asnew) {
+          if ($post->Alias == "" || $post->Alias == $post->ID) {
             if ($this->prefix !== "none")
-                $post->Alias = $this->prefix . $post->ID;
+              $post->Alias = $this->prefix . $post->ID;
           }
           $post->ID = 0;
-        }else{
+        } else {
           $this->mt_Build($article, -1);
           DelArticle_Comments($article->ID);
         }
@@ -164,28 +182,20 @@ class MT_Import
         $zbp->db->Insert($sql);
       }
     }
-    $post->CateID   = $this->get_CateID($post->CateID);
-    if($post->CateID==99){
+    $post->CateID = $this->get_CateID($post->CateID);
+    if ($post->CateID == 99) {
       file_put_contents("cache/debug.txt", $post->Title . "\n", FILE_APPEND);
       return false;
     }
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
     $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
-    // $post->Content = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Content);
-    // $post->Content = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
-    // $post->Content = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
-    // $post->Content = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Content);
     $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content  = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
-    // $post->Intro = str_replace('src="image/face/', 'src="{#ZC_BLOG_HOST#}zb_users/emotion/face/', $post->Intro);
-    // $post->Intro = str_replace('src="upload', 'src="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
-    // $post->Intro = str_replace('href="upload', 'href="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
-    // $post->Intro = str_replace('value="upload', 'value="{#ZC_BLOG_HOST#}zb_users/upload', $post->Intro);
     $post->Intro    = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
     $post->Intro    = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
     $post->Save();
     $this->mt_Build($post);
-    echo ($post->ID . "、" . $post->Title . " <b>写入成功</b><br/>");
+      echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $done;
     //$zbp->LoadMembers();
     foreach ($comments as $comment) {
       $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
@@ -278,10 +288,6 @@ class MT_Import
           $post->IsTop = 1;
       } else if (0 === strpos($line, 'CATEGORY:')) {
         $category = trim(substr($line, strlen('CATEGORY:')));
-        if ('' != $category)
-          $post->CateID = $category;
-      } else if (0 === strpos($line, 'PRIMARY CATEGORY:')) {
-        $category = trim(substr($line, strlen('PRIMARY CATEGORY:')));
         if ('' != $category)
           $post->CateID = $category;
       } else if (0 === strpos($line, 'DATE:')) {
