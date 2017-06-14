@@ -108,6 +108,12 @@ class MT_Import
         $cate           = new Category();
         $cate->Name     = trim($value);
         $cate->ParentID = $ParentID;
+        file_put_contents(dirname(__FILE__) . "/input/debug.json","{$name}\n",FILE_APPEND);
+        file_put_contents(dirname(__FILE__) . "/input/debug.json",json_encode($cate->GetData()) . "\n",FILE_APPEND);
+        if ($cate->Name == 0 || $cate->Name == null) {
+          copy($this->file, dirname(__FILE__) . "/input/input.json");
+          return 999;
+        }
         $cate->Save();
         $zbp->LoadCategorys();
       } else {
@@ -183,8 +189,7 @@ class MT_Import
       }
     }
     $post->CateID = $this->get_CateID($post->CateID);
-    if ($post->CateID == 99) {
-      file_put_contents("cache/debug.txt", $post->Title . "\n", FILE_APPEND);
+    if ($post->CateID == 999) {
       return false;
     }
     $post->AuthorID = $this->get_AuthorID($post->AuthorID);
