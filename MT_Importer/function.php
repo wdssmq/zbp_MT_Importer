@@ -27,8 +27,6 @@ class MT_Import
     return fclose($fp);
   }
   public $file;
-  public $override = false;
-  public $asnew = false;
   public $prefix = "none";
   //更新文章数；
   function mt_Build(&$article, $m = +1)
@@ -90,7 +88,7 @@ class MT_Import
     $arrCates = explode(">>", $name);
     $ParentID = 0;
     foreach ($arrCates as $key => $value) {
-      if($value=="")
+      if ($value == "")
         continue;
       $result = $zbp->GetCategoryList(null, array(
         array(
@@ -108,8 +106,8 @@ class MT_Import
         $cate           = new Category();
         $cate->Name     = trim($value);
         $cate->ParentID = $ParentID;
-        file_put_contents(dirname(__FILE__) . "/input/debug.json","{$name}\n",FILE_APPEND);
-        file_put_contents(dirname(__FILE__) . "/input/debug.json",json_encode($cate->GetData()) . "\n",FILE_APPEND);
+        file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$name}\n", FILE_APPEND);
+        file_put_contents(dirname(__FILE__) . "/input/debug.json", json_encode($cate->GetData()) . "\n", FILE_APPEND);
         if ($cate->Name == 0 || $cate->Name == null) {
           copy($this->file, dirname(__FILE__) . "/input/input.json");
           return 999;
@@ -134,73 +132,90 @@ class MT_Import
     }
     $this->Check_PA = true;
   }
+  public $over = false;
+  public $asnew = false;
   function save_post(&$post, &$comments)
   {
     global $zbp;
-    $tips = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
+    $tips  = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
     $exist = " <b style=\"color:red\">已存在</b>；<br/><br/>";
-    $done = " <b>写入成功</b>；<br/><br/>";
+    $skip  = " <b style=\"color:gray\">未写入</b>；<br/><br/>";
+    $done  = " <b>写入成功</b>；<br/><br/>";
     if (!$this->Check_PA)
       $this->get_PostArray();
-    if (in_array($post->Title, $this->PostsArray) && ($post->ID == 0 || $this->asnew)) {
-      $post = GetPost($post->Title);
-      echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $exist;
-      return;
+    if (in_array($post->Title, $this->PostsArray)) {
+      $exPost = GetPost($post->Title);
+      echo strtr($tips, array(
+        "-id-" => $exPost->ID,
+        "-link-" => $exPost->Url,
+        "-title-" => $exPost->Title
+      )) . $exist;
+      if ($post->ID !== 0 && $post->ID !== $exPost->ID) {
+        echo "{$post->ID}、传入文章<b>《{$post->Title}》</b> 与已有同名文章ID不符，<b style=\"color:red\">请手动确定内容</b>";
+        return;
+      }
+      if (!$this->over)
+        return;
+    } else if ($post->ID !== 0) {
+      $exPost = GetPost($post->ID);
+      if ($exPost->ID !== 0)
+        echo strtr($tips, array(
+          "-id-" => $exPost->ID,
+          "-link-" => $exPost->Url,
+          "-title-" => $exPost->Title
+        )) . $exist;
+      if ($this->over) {
+        if ($exPost->ID === 0) {
+          $dataPost = array(
+            'log_ID' => $post->ID,
+            'log_Intro' => '',
+            'log_Content' => '',
+            'log_Meta' => ''
+          );
+          $sql      = $zbp->db->sql->Insert($GLOBALS['table']['Post'], $dataPost);
+          $zbp->db->Insert($sql);
+          // $exPost = $post;
+        }
+      } else if ($this->asnew) {
+        if ($post->Alias == "" || $post->Alias == $post->ID) {
+          if ($this->prefix !== "none")
+            $post->Alias = $this->prefix . $post->ID;
+        }
+        $post->ID = 0;
+        // $exPost   = $post;
+      } else {
+        echo strtr($tips, array(
+          "-id-" => $post->ID,
+          "-link-" => $post->Url,
+          "-title-" => $post->Title
+        )) . $skip;
+        return;
+      }
     } else {
       $this->PostsArray[] = $post->Title;
+      $exPost             = $post;
     }
-    if ($post->ID !== 0) {
-      $sql   = $zbp->db->sql->Select($zbp->table['Post'], array(
-        'log_ID'
-      ), array(
-        array(
-          '=',
-          'log_ID',
-          $post->ID
-        )
-      ));
-      $array = $zbp->db->Query($sql);
-      if (count($array) > 0) {
-        $article = new Post();
-        $article->LoadInfoByID($post->ID);
-        echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $exist;
-        if (!$this->override && !$this->asnew)
-          return;
-        // echo ($post->ID . "、" . "强制写入");
-        if ($this->asnew) {
-          if ($post->Alias == "" || $post->Alias == $post->ID) {
-            if ($this->prefix !== "none")
-              $post->Alias = $this->prefix . $post->ID;
-          }
-          $post->ID = 0;
-        } else {
-          $this->mt_Build($article, -1);
-          DelArticle_Comments($article->ID);
-        }
-      } else {
-        $keyvalue = array(
-          'log_ID' => $post->ID,
-          'log_Intro' => '',
-          'log_Content' => '',
-          'log_Meta' => ''
-        );
-        $sql      = $zbp->db->sql->Insert($GLOBALS['table']['Post'], $keyvalue);
-        $zbp->db->Insert($sql);
-      }
+    if ($exPost->ID !== 0) {
+      $this->mt_Build($exPost, -1);
+      // DelArticle_Comments($exPost->ID);
     }
-    $post->CateID = $this->get_CateID($post->CateID);
-    if ($post->CateID == 999) {
+    foreach ($post->GetData() as $k => $v) {
+      if ($k !== "ViewNums")
+        $exPost->$k = $v;
+    }
+    $exPost->CateID = $this->get_CateID($post->CateID);
+    if ($exPost->CateID == 999) {
       return false;
     }
-    $post->AuthorID = $this->get_AuthorID($post->AuthorID);
-    $post->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
-    $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
-    $post->Content  = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
-    $post->Intro    = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
-    $post->Intro    = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
-    $post->Save();
-    $this->mt_Build($post);
-      echo strtr($tips,array("-id-"=>$post->ID,"-link-"=>$post->Url,"-title-"=>$post->Title)) . $done;
+    $exPost->AuthorID = $this->get_AuthorID($post->AuthorID);
+    $exPost->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
+    $exPost->Save();
+    $this->mt_Build($exPost);
+    echo strtr($tips, array(
+      "-id-" => $post->ID,
+      "-link-" => $post->Url,
+      "-title-" => $post->Title
+    )) . $done;
     //$zbp->LoadMembers();
     foreach ($comments as $comment) {
       $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
