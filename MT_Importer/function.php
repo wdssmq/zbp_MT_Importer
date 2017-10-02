@@ -199,6 +199,10 @@ class MT_Import
       $this->mt_Build($exPost, -1);
       // DelArticle_Comments($exPost->ID);
     }
+    // $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
+    $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
+    // $post->Intro    = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
+    $post->Intro   = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
     foreach ($post->GetData() as $k => $v) {
       if ($k !== "ViewNums")
         $exPost->$k = $v;
