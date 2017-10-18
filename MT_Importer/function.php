@@ -150,8 +150,8 @@ class MT_Import
         "-link-" => $exPost->Url,
         "-title-" => $exPost->Title
       )) . $exist;
-      if ($post->ID !== 0 && $post->ID !== $exPost->ID) {
-        echo "{$post->ID}、传入文章<b>《{$post->Title}》</b> 与已有同名文章ID不符，<b style=\"color:red\">请手动确定内容</b>";
+      if ($post->ID !== 0 && $post->ID != $exPost->ID) {
+        echo "{$post->ID}、传入文章<b>《{$post->Title}》</b> 与已有同名文章ID不符，<b style=\"color:red\">请手动确定内容</b>; <br/><br/>";
         return;
       }
       if (!$this->over)
