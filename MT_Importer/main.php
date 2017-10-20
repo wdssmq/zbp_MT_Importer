@@ -6,7 +6,7 @@ $action='root';
 if (!$zbp->CheckRights($action)) {$zbp->ShowError(6);die();}
 if (!$zbp->CheckPlugin('MT_Importer')) {$zbp->ShowError(48);die();}
 
-$blogtitle='MT数据格式导入';
+$blogtitle='MT数据格式导入【PHP】';
 require $blogpath . 'zb_system/admin/admin_header.php';
 require $blogpath . 'zb_system/admin/admin_top.php';
 require_once 'function.php';
@@ -32,7 +32,7 @@ if(GetVars('act','GET')=='save'){
   <div class="divHeader"><?php echo $blogtitle;?></div>
   <div class="SubMenu">
     <a href="main.php"><span class="m-left <?php echo setNow("main");?>">首页</span></a>
-    <a href="main.php?act=sync"><span class="m-left <?php echo setNow("sync");?>">自动导入</span></a>
+    <a href="main.php?act=sync"><span class="m-left <?php echo setNow("sync");?>">站点同步（导入）</span></a>
     <?php require 'about.php';?></div>
   <div id="divMain2">
 <?php if($act == null || $act == 'import') {?>
@@ -82,7 +82,7 @@ if ($act == 'import') {
 ?>
 <?php } else { ?>
   <form action="main.php?act=save&suc=sync" method="post">
-  <table width="100%" class="tableBorder">
+  <table width="100%">
     <tr>
       <th width="97">项目</th>
       <th>内容</th>
@@ -111,9 +111,10 @@ if ($act == 'import') {
       <td><input onclick="that = this;setTimeout(function(){that.select()},150);" onkeyup="if (this.dataset['value']) this.value = this.dataset['value'];this.select()" onmouseover="this.dataset['value'] = this.value;this.select()" style="width:97%" type="text" id="url" name="url" value="<?php echo $zbp->host . "zb_users/plugin/MT_Importer/task.php";?>" /></td>
       <td>只读，请复制至监控服务并设置合适的触发周期</td>
     </tr>
-
+    <tr>
+      <td colspan="3"><input type="submit" value="提交" /><small><a href="main.php?act=sync" title="刷新">刷新</a></small></td>
+    </tr>
   </table>
-  <input name="submit" type="submit" class="button" value="保存"/> <small><a href="main.php?act=sync" title="刷新">刷新</a></small>
   </form>
 <?php } ?>
   </div><br /><br />
