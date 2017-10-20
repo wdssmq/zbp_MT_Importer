@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin version="php">
 <id>MT_Importer</id>
-<name>MT数据格式导入</name>
-<url>http://www.wdssmq.com</url>
+<name>MT数据格式导入【PHP】</name>
+<url>https://www.wdssmq.com/post/20170502785.html</url>
 <note>将MovableType数据导入ZBP</note>
 <description>置百丈玄冰而崩裂，掷须臾池水而漂摇。</description>
 <path>main.php</path>
@@ -18,10 +18,10 @@
   <email></email>
   <url></url>
 </source>
-<adapted>150101</adapted>
+<adapted>151626</adapted>
 <version>0</version>
 <pubdate>2017-10-02</pubdate>
-<modified>2017-10-02</modified>
+<modified>2017-10-20</modified>
 <price>0</price>
 <phpver>5.2</phpver>
 <advanced>

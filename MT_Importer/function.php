@@ -69,10 +69,13 @@ class MT_Import
     $zbp->BuildModule();
     $zbp->SaveCache();
   }
+  public $preAuthorID = 0;
   //获取作者ID
   function get_AuthorID($name)
   {
     global $zbp;
+    if ($this->preAuthorID > 0)
+      return $this->preAuthorID;
     $o = $zbp->GetMemberByName($name);
     if ($o->ID == 0) {
       $o->Name = $name;
@@ -128,7 +131,7 @@ class MT_Import
     global $zbp;
     $postlist = $zbp->GetPostList('log_Title');
     foreach ($postlist as $key => $value) {
-      $this->PostsArray[$value->ID] = $value->Title;
+      $this->PostsArray[$key] = $value->Title;
     }
     $this->Check_PA = true;
   }
