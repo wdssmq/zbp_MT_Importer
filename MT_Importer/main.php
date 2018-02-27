@@ -132,8 +132,11 @@ if ($act == 'import') {
     var obj = {};
     var key = $(".check-box:checked").attr("name");
     if (key)
-      //eval("obj."+key+"=true");
       obj[key] = true;
+    else if (window.confirm('默认以“覆盖同ID文章”模式导入？')){
+      obj["over"] = true;
+    } else 
+      return false;
     obj.prefix = $("input[name=prefix]").val();
     zbp.cookie.set("mt_form", JSON.stringify(obj));
   });
