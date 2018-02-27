@@ -39,7 +39,7 @@ if(GetVars('act','GET')=='save'){
     <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType-*.txt</code> 到<code>zb_users/plugin/MT_Importer/input</code>文件夹内然后点击导入</p>
     <p>2、相同Title的文章仅当ID也相同且勾选覆盖选项时才会作覆盖更新；</p>
     <p>3、建议单个文件内文章数不超过300，单次导入总文章数不超过3000； </p>
-    <form class="import-upload-form" action="main.php" method="post">
+    <form class="import-upload-form" action="main.php?act=import" method="post">
       <input type="hidden" value="import" name="act" />
       <p style="margin:0 0.5em">
         <input class="check-box" type="checkbox" id="over" name="over" value="true" /> <label for="over">覆盖同ID文章</label><br />

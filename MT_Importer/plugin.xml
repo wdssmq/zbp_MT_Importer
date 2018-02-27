@@ -19,11 +19,11 @@
   <url></url>
 </source>
 <adapted>151626</adapted>
-<version>0</version>
+<version>0.3</version>
 <pubdate>2017-10-02</pubdate>
-<modified>2017-10-20</modified>
+<modified>2018-02-27</modified>
 <price>0</price>
-<phpver>5.2</phpver>
+<phpver>5.3</phpver>
 <advanced>
   <dependency></dependency>
   <rewritefunctions></rewritefunctions>

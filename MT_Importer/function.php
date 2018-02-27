@@ -88,6 +88,8 @@ class MT_Import
   function get_CateID($name)
   {
     global $zbp;
+    file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$name}\n", FILE_APPEND);
+    // file_put_contents(dirname(__FILE__) . "/input/debug.json", json_encode($cate->GetData()) . "\n", FILE_APPEND);
     $arrCates = explode(">>", $name);
     $ParentID = 0;
     foreach ($arrCates as $key => $value) {
@@ -109,12 +111,6 @@ class MT_Import
         $cate           = new Category();
         $cate->Name     = trim($value);
         $cate->ParentID = $ParentID;
-        file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$name}\n", FILE_APPEND);
-        file_put_contents(dirname(__FILE__) . "/input/debug.json", json_encode($cate->GetData()) . "\n", FILE_APPEND);
-        if ($cate->Name == 0 || $cate->Name == null) {
-          copy($this->file, dirname(__FILE__) . "/input/input.json");
-          return 999;
-        }
         $cate->Save();
         $zbp->LoadCategorys();
       } else {
@@ -122,6 +118,7 @@ class MT_Import
       }
       $ParentID = $cate->ID;
     }
+    file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$cate->Name}\n", FILE_APPEND);
     return $cate->ID;
   }
   private $PostsArray = array();
@@ -200,7 +197,7 @@ class MT_Import
     }
     if ($exPost->ID !== 0) {
       $this->mt_Build($exPost, -1);
-      // DelArticle_Comments($exPost->ID);
+      DelArticle_Comments($exPost->ID);
     }
     // $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
