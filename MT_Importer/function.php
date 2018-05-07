@@ -88,8 +88,6 @@ class MT_Import
   function get_CateID($name)
   {
     global $zbp;
-    file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$name}\n", FILE_APPEND);
-    // file_put_contents(dirname(__FILE__) . "/input/debug.json", json_encode($cate->GetData()) . "\n", FILE_APPEND);
     $arrCates = explode(">>", $name);
     $ParentID = 0;
     foreach ($arrCates as $key => $value) {
@@ -118,7 +116,6 @@ class MT_Import
       }
       $ParentID = $cate->ID;
     }
-    file_put_contents(dirname(__FILE__) . "/input/debug.json", "{$cate->Name}\n", FILE_APPEND);
     return $cate->ID;
   }
   private $PostsArray = array();
@@ -207,10 +204,7 @@ class MT_Import
       if ($k !== "ViewNums")
         $exPost->$k = $v;
     }
-    $exPost->CateID = $this->get_CateID($post->CateID);
-    if ($exPost->CateID == 999) {
-      return false;
-    }
+    $exPost->CateID   = $this->get_CateID($post->CateID);
     $exPost->AuthorID = $this->get_AuthorID($post->AuthorID);
     $exPost->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
     $exPost->Save();
@@ -252,8 +246,16 @@ class MT_Import
         $context = '';
       } else if ('--------' == $line) {
         // Finishing a post.
-        $context  = '';
-        $result   = $this->save_post($post, $comments);
+        $context = '';
+        if ($post->CateID !== 0 || $post->Type === 1)
+          $this->save_post($post, $comments);
+        else {
+          $time = time();
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Title}\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->AuthorID}\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Content}\n", FILE_APPEND);
+          copy($this->file, dirname($this->file) . "/{$time}.copy");
+        }
         $post     = new Post;
         $comments = array();
       } else if ('BODY:' == $line) {
