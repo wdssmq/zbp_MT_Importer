@@ -204,7 +204,8 @@ class MT_Import
       if ($k !== "ViewNums")
         $exPost->$k = $v;
     }
-    $exPost->CateID   = $this->get_CateID($post->CateID);
+    if ($post->Type === 0)
+      $exPost->CateID   = $this->get_CateID($post->CateID);
     $exPost->AuthorID = $this->get_AuthorID($post->AuthorID);
     $exPost->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
     $exPost->Save();

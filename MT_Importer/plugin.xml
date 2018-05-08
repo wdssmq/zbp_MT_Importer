@@ -2,7 +2,7 @@
 <plugin version="php">
 <id>MT_Importer</id>
 <name>MT数据格式导入【PHP】</name>
-<url>https://www.wdssmq.com/post/20170502785.html</url>
+<url>http://www.wdssmq.com/post/20170502785.html</url>
 <note>将MovableType数据导入ZBP</note>
 <description>置百丈玄冰而崩裂，掷须臾池水而漂摇。</description>
 <path>main.php</path>
@@ -19,11 +19,11 @@
   <url></url>
 </source>
 <adapted>151626</adapted>
-<version>0.3</version>
+<version>0.4</version>
 <pubdate>2017-10-02</pubdate>
-<modified>2018-02-27</modified>
+<modified>2018-05-07</modified>
 <price>0</price>
-<phpver>5.3</phpver>
+<phpver>5.4</phpver>
 <advanced>
   <dependency></dependency>
   <rewritefunctions></rewritefunctions>
