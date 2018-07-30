@@ -345,8 +345,8 @@ class MT_Import
           $comment->Agent = $url;
       } else {
         // Processing multi-line field, check context.
-        if (!empty($line))
-          $line .= "\n";
+        // if (!empty($line))
+          // $line .= "\n";
         if ('body' == $context) {
           $post->Content .= $line;
         } else if ('excerpt' == $context) {
