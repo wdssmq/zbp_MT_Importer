@@ -36,22 +36,22 @@ class MT_Import
       CountTagArrayString($article->Tag, $m, $article->ID);
     if ($article->Type == 0)
       CountMemberArray(array(
-        $article->AuthorID
-      ), array(
-        $m,
-        0,
-        0,
-        0
-      ));
+      $article->AuthorID
+    ), array(
+      $m,
+      0,
+      0,
+      0
+    ));
     elseif ($article->Type == 1)
       CountMemberArray(array(
-        $article->AuthorID
-      ), array(
-        0,
-        $m,
-        0,
-        0
-      ));
+      $article->AuthorID
+    ), array(
+      0,
+      $m,
+      0,
+      0
+    ));
     CountCategoryArray(array(
       $article->CateID
     ), $m);
@@ -106,8 +106,8 @@ class MT_Import
         )
       ), null, 1);
       if (count($result) == 0) {
-        $cate           = new Category();
-        $cate->Name     = trim($value);
+        $cate = new Category();
+        $cate->Name = trim($value);
         $cate->ParentID = $ParentID;
         $cate->Save();
         $zbp->LoadCategorys();
@@ -134,10 +134,10 @@ class MT_Import
   function save_post(&$post, &$comments)
   {
     global $zbp;
-    $tips  = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
+    $tips = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
     $exist = " <b style=\"color:red\">已存在</b>；<br/><br/>";
-    $skip  = " <b style=\"color:gray\">未写入</b>；<br/><br/>";
-    $done  = " <b>写入成功</b>；<br/><br/>";
+    $skip = " <b style=\"color:gray\">未写入</b>；<br/><br/>";
+    $done = " <b>写入成功</b>；<br/><br/>";
     if (!$this->Check_PA)
       $this->get_PostArray();
     if (in_array($post->Title, $this->PostsArray)) {
@@ -157,10 +157,10 @@ class MT_Import
       $exPost = GetPost($post->ID);
       if ($exPost->ID !== 0)
         echo strtr($tips, array(
-          "-id-" => $exPost->ID,
-          "-link-" => $exPost->Url,
-          "-title-" => $exPost->Title
-        )) . $exist;
+        "-id-" => $exPost->ID,
+        "-link-" => $exPost->Url,
+        "-title-" => $exPost->Title
+      )) . $exist;
       if ($this->over) {
         if ($exPost->ID === 0) {
           $dataPost = array(
@@ -169,7 +169,7 @@ class MT_Import
             'log_Content' => '',
             'log_Meta' => ''
           );
-          $sql      = $zbp->db->sql->Insert($GLOBALS['table']['Post'], $dataPost);
+          $sql = $zbp->db->sql->Insert($GLOBALS['table']['Post'], $dataPost);
           $zbp->db->Insert($sql);
           // $exPost = $post;
         }
@@ -190,7 +190,7 @@ class MT_Import
       }
     } else {
       $this->PostsArray[] = $post->Title;
-      $exPost             = $post;
+      $exPost = $post;
     }
     if ($exPost->ID !== 0) {
       $this->mt_Build($exPost, -1);
@@ -199,15 +199,15 @@ class MT_Import
     // $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
     // $post->Intro    = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
-    $post->Intro   = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
+    $post->Intro = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
     foreach ($post->GetData() as $k => $v) {
       if ($k !== "ViewNums")
         $exPost->$k = $v;
     }
     if ($post->Type === 0)
-      $exPost->CateID   = $this->get_CateID($post->CateID);
+      $exPost->CateID = $this->get_CateID($post->CateID);
     $exPost->AuthorID = $this->get_AuthorID($post->AuthorID);
-    $exPost->Tag      = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
+    $exPost->Tag = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
     $exPost->Save();
     $this->mt_Build($exPost);
     echo strtr($tips, array(
@@ -218,7 +218,7 @@ class MT_Import
     //$zbp->LoadMembers();
     foreach ($comments as $comment) {
       $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
-      $comment->LogID    = $post->ID;
+      $comment->LogID = $post->ID;
       $comment->Save();
       CountPostArray(array(
         $comment->LogID
@@ -232,9 +232,9 @@ class MT_Import
     $handle = $this->fopen($this->file, 'r');
     if ($handle == null)
       return false;
-    $context  = '';
-    $post     = new Post;
-    $comment  = new Comment;
+    $context = '';
+    $post = new Post;
+    $comment = new Comment;
     $comments = array();
     while ($line = fgets($handle)) {
       $line = trim($line);
@@ -242,22 +242,26 @@ class MT_Import
         // Finishing a multi-line field
         if ('comment' == $context) {
           $comments[] = $comment;
-          $comment    = new Comment;
+          $comment = new Comment;
         }
         $context = '';
       } else if ('--------' == $line) {
         // Finishing a post.
         $context = '';
-        if ($post->CateID !== 0 || $post->Type === 1)
+        $post->Content = trim($post->Content);
+        if (!empty($post->Content) && !empty($post->Alias))
           $this->save_post($post, $comments);
         else {
           $time = time();
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Title}\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->AuthorID}\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Content}\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Title}\n-\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->ID}\n-\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Alias}\n-\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->AuthorID}\n-\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->CateID}\n-\n", FILE_APPEND);
+          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Content}\n-\n", FILE_APPEND);
           copy($this->file, dirname($this->file) . "/{$time}.copy");
         }
-        $post     = new Post;
+        $post = new Post;
         $comments = array();
       } else if ('BODY:' == $line) {
         $context = 'body';
@@ -276,7 +280,7 @@ class MT_Import
       } else if (0 === strpos($line, 'ID:')) {
         $ID = trim(substr($line, strlen('ID:')));
         if ('' == $context)
-          $post->ID = (int) ($ID);
+          $post->ID = (int)($ID);
       } else if (0 === strpos($line, 'TITLE:')) {
         $title = trim(substr($line, strlen('TITLE:')));
         if ('' == $context)
@@ -303,13 +307,13 @@ class MT_Import
           $post->IsLock = 1;
       } else if (0 === strpos($line, 'ISPAGE:')) {
         $type = trim(substr($line, strlen('ISPAGE:')));
-        if ((int) $type == 0)
+        if ((int)$type == 0)
           $post->Type = 0;
         else
           $post->Type = 1;
       } else if (0 === strpos($line, 'ISTOP:')) {
         $IsTop = trim(substr($line, strlen('ISTOP:')));
-        if ((int) $IsTop == 0)
+        if ((int)$IsTop == 0)
           $post->IsTop = 0;
         else
           $post->IsTop = 1;

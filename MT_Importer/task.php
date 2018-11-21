@@ -15,6 +15,9 @@ set_time_limit(0);
 
 $filepath = ZBP_PATH . 'zb_users/plugin/MT_Importer/cache/input.txt';
 
+if (is_file($filepath))
+  die();
+
 $url = $zbp->Config('MT_Import')->SyncUrl;
 
 $preAuthorID = $zbp->Config('MT_Import')->AuthorID;
@@ -36,6 +39,7 @@ echo MT_checkBOM($filepath, "input.txt");
 $mt_import->file = $filepath;
 $mt_import->process_posts();
 $mt_import->mt_Done();
+@unlink($filepath);
 ?>
 </body>
 </html>

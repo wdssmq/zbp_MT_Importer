@@ -2,40 +2,47 @@
 require '../../../zb_system/function/c_system_base.php';
 require '../../../zb_system/function/c_system_admin.php';
 $zbp->Load();
-$action='root';
-if (!$zbp->CheckRights($action)) {$zbp->ShowError(6);die();}
-if (!$zbp->CheckPlugin('MT_Importer')) {$zbp->ShowError(48);die();}
+$action = 'root';
+if (!$zbp->CheckRights($action)) {
+  $zbp->ShowError(6);
+  die();
+}
+if (!$zbp->CheckPlugin('MT_Importer')) {
+  $zbp->ShowError(48);
+  die();
+}
 
-$blogtitle='MT数据格式导入【PHP】';
+$blogtitle = 'MT数据格式导入【PHP】';
 require $blogpath . 'zb_system/admin/admin_header.php';
 require $blogpath . 'zb_system/admin/admin_top.php';
 require_once 'function.php';
 InstallPlugin_MT_Importer();
-$act = GetVars('act','GET');
-$suc = GetVars('suc','GET');
-function setNow($class) {
+$act = GetVars('act', 'GET');
+$suc = GetVars('suc', 'GET');
+function setNow($class)
+{
   global $act;
-  if($class == "main" && $act == null)
+  if ($class == "main" && $act == null)
     return "m-now";
   return $class == $act ? "m-now" : $class;
 }
-if(GetVars('act','GET')=='save'){
+if (GetVars('act', 'GET') == 'save') {
   $zbp->Config('MT_Import')->SyncUrl = $_POST['SyncUrl'];
   $zbp->Config('MT_Import')->AuthorID = $_POST['AuthorID'];
-	$zbp->SaveConfig('MT_Import');
-	$zbp->SetHint('good');
-	Redirect('./main.php' . $suc == null ? '' : "?act=$suc");
+  $zbp->SaveConfig('MT_Import');
+  $zbp->SetHint('good');
+  Redirect('./main.php' . $suc == null ? '' : "?act=$suc");
 }
 
 ?>
 <div id="divMain">
-  <div class="divHeader"><?php echo $blogtitle;?></div>
+  <div class="divHeader"><?php echo $blogtitle; ?></div>
   <div class="SubMenu">
-    <a href="main.php"><span class="m-left <?php echo setNow("main");?>">首页</span></a>
-    <a href="main.php?act=sync"><span class="m-left <?php echo setNow("sync");?>">站点同步（导入）</span></a>
-    <?php require 'about.php';?></div>
+    <a href="main.php"><span class="m-left <?php echo setNow("main"); ?>">首页</span></a>
+    <a href="main.php?act=sync"><span class="m-left <?php echo setNow("sync"); ?>">站点同步（导入）</span></a>
+    <?php require 'about.php'; ?></div>
   <div id="divMain2">
-<?php if($act == null || $act == 'import') {?>
+<?php if ($act == null || $act == 'import') { ?>
     <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType-*.txt</code> 到<code>zb_users/plugin/MT_Importer/input</code>文件夹内然后点击导入</p>
     <p>2、相同Title的文章仅当ID也相同且勾选覆盖选项时才会作覆盖更新；</p>
     <p>3、建议单个文件内文章数不超过300，单次导入总文章数不超过3000； </p>
@@ -52,15 +59,17 @@ if(GetVars('act','GET')=='save'){
 <?php
 if ($act == 'import') {
   set_time_limit(0);
-  $dir        = ZBP_PATH . 'zb_users/plugin/MT_Importer/input/';
-  $arrfiles   = GetFilesInDir($dir, "txt");
+  $dir = ZBP_PATH . 'zb_users/plugin/MT_Importer/input/';
+  $arrfiles = GetFilesInDir($dir, "txt");
   $countfiles = count($arrfiles);
-  $bolDo      = true;
-  $mt_import  = new MT_Import();
+  $bolDo = false;
+  $mt_import = new MT_Import();
   if (GetVars('over', 'POST') == 'true') {
     $mt_import->over = true;
+    $bolDo = true;
   } elseif (GetVars('asnew', 'POST') == 'true') {
-    $mt_import->asnew  = true;
+    $mt_import->asnew = true;
+    $bolDo = true;
     $mt_import->prefix = trim(GetVars('prefix', 'POST'));
     if ($mt_import->prefix == "") {
       echo "请输入前缀，确定不使用前缀请输入none";
@@ -80,7 +89,9 @@ if ($act == 'import') {
   }
 }
 ?>
-<?php } else { ?>
+<?php
+
+} else { ?>
   <form action="main.php?act=save&suc=sync" method="post">
   <table width="100%">
     <tr>
@@ -90,7 +101,7 @@ if ($act == 'import') {
     </tr>
     <tr>
       <td>抓取网址</td>
-      <td><input onmouseover="this.select()" style="width:97%" type="text" id="SyncUrl" name="SyncUrl" value="<?php echo $zbp->Config('MT_Import')->SyncUrl;?>" /></td>
+      <td><input onmouseover="this.select()" style="width:97%" type="text" id="SyncUrl" name="SyncUrl" value="<?php echo $zbp->Config('MT_Import')->SyncUrl; ?>" /></td>
       <td></td>
     </tr>
     <tr>
@@ -108,7 +119,7 @@ if ($act == 'import') {
     </tr>
     <tr>
       <td>监控地址</td>
-      <td><input onclick="that = this;setTimeout(function(){that.select()},150);" onkeyup="if (this.dataset['value']) this.value = this.dataset['value'];this.select()" onmouseover="this.dataset['value'] = this.value;this.select()" style="width:97%" type="text" id="url" name="url" value="<?php echo $zbp->host . "zb_users/plugin/MT_Importer/task.php";?>" /></td>
+      <td><input onclick="that = this;setTimeout(function(){that.select()},150);" onkeyup="if (this.dataset['value']) this.value = this.dataset['value'];this.select()" onmouseover="this.dataset['value'] = this.value;this.select()" style="width:97%" type="text" id="url" name="url" value="<?php echo $zbp->host . "zb_users/plugin/MT_Importer/task.php"; ?>" /></td>
       <td>只读，请复制至监控服务并设置合适的触发周期</td>
     </tr>
     <tr>
@@ -116,7 +127,9 @@ if ($act == 'import') {
     </tr>
   </table>
   </form>
-<?php } ?>
+<?php
+
+} ?>
   </div><br /><br />
 
 </div>
@@ -134,8 +147,9 @@ if ($act == 'import') {
     if (key)
       obj[key] = true;
     else if (window.confirm('默认以“覆盖同ID文章”模式导入？')){
-      obj["over"] = true;
-    } else 
+      $("input[name=over]").prop("checked",true);
+      obj.over = true;
+    } else
       return false;
     obj.prefix = $("input[name=prefix]").val();
     zbp.cookie.set("mt_form", JSON.stringify(obj));
