@@ -230,7 +230,7 @@ class MT_Import
   {
     global $zbp;
     $handle = $this->fopen($this->file, 'r');
-    if ($handle == null)
+    if ($handle == null || !flock($handle, LOCK_EX | LOCK_NB))
       return false;
     $context = '';
     $post = new Post;
@@ -362,6 +362,7 @@ class MT_Import
         }
       }
     }
+    flock($handle, LOCK_UN);
     $this->fclose($handle);
   }
 }
