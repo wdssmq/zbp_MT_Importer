@@ -18,9 +18,9 @@ $filepath = ZBP_PATH . 'zb_users/plugin/MT_Importer/cache/input.txt';
 if (is_file($filepath))
   die();
 
-$url = $zbp->Config('MT_Import')->SyncUrl;
+$url = $zbp->Config('MT_Importer')->SyncUrl;
 
-$preAuthorID = $zbp->Config('MT_Import')->AuthorID;
+$preAuthorID = $zbp->Config('MT_Importer')->AuthorID;
 
 if (empty($url))
   die();

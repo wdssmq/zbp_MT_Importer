@@ -27,9 +27,9 @@ function setNow($class)
   return $class == $act ? "m-now" : $class;
 }
 if (GetVars('act', 'GET') == 'save') {
-  $zbp->Config('MT_Import')->SyncUrl = $_POST['SyncUrl'];
-  $zbp->Config('MT_Import')->AuthorID = $_POST['AuthorID'];
-  $zbp->SaveConfig('MT_Import');
+  $zbp->Config('MT_Importer')->SyncUrl = $_POST['SyncUrl'];
+  $zbp->Config('MT_Importer')->AuthorID = $_POST['AuthorID'];
+  $zbp->SaveConfig('MT_Importer');
   $zbp->SetHint('good');
   Redirect('./main.php' . $suc == null ? '' : "?act=$suc");
 }
@@ -101,7 +101,7 @@ if ($act == 'import') {
     </tr>
     <tr>
       <td>抓取网址</td>
-      <td><input onmouseover="this.select()" style="width:97%" type="text" id="SyncUrl" name="SyncUrl" value="<?php echo $zbp->Config('MT_Import')->SyncUrl; ?>" /></td>
+      <td><input onmouseover="this.select()" style="width:97%" type="text" id="SyncUrl" name="SyncUrl" value="<?php echo $zbp->Config('MT_Importer')->SyncUrl; ?>" /></td>
       <td></td>
     </tr>
     <tr>
@@ -111,7 +111,7 @@ if ($act == 'import') {
         <!-- user( -->
           <select style="width:223px;" size="1" name="AuthorID" id="AuthorID" onChange="AuthorID.value=this.options[this.selectedIndex].value">
           <option value="0">同名用户</option>
-          <?php echo OutputOptionItemsOfMember($zbp->Config('MT_Import')->AuthorID); ?>
+          <?php echo OutputOptionItemsOfMember($zbp->Config('MT_Importer')->AuthorID); ?>
           </select>&nbsp;&nbsp;如不存在同名用户则自动创建！
         <!-- )user -->
       </td>

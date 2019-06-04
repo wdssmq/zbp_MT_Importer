@@ -251,16 +251,6 @@ class MT_Import
         $post->Content = trim($post->Content);
         if (!empty($post->Content) && !empty($post->Alias))
           $this->save_post($post, $comments);
-        else {
-          $time = time();
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Title}\n-\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->ID}\n-\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Alias}\n-\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->AuthorID}\n-\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->CateID}\n-\n", FILE_APPEND);
-          file_put_contents(dirname($this->file) . "/{$time}.json", "{$post->Content}\n-\n", FILE_APPEND);
-          copy($this->file, dirname($this->file) . "/{$time}.copy");
-        }
         $post = new Post;
         $comments = array();
       } else if ('BODY:' == $line) {
