@@ -6,58 +6,62 @@
 -->
 
 <style type="text/css">
-#divMain .SubMenu {height: auto;}
-i.xnxf-tip {
-	background-color: red;
-	border-radius: 7px;
-	height: 7px;
-	padding: 0;
-	position: relative;
-	right: 8px;
-	top: -3px;
-	width: 7px;
-}
-#help a {
+  #divMain .SubMenu {
+    height: auto;
+  }
+
+  i.xnxf-tip {
+    background-color: red;
+    border-radius: 7px;
+    height: 7px;
+    padding: 0;
+    position: relative;
+    right: 8px;
+    top: -3px;
+    width: 7px;
+  }
+
+  #help {
+    padding-top: 1em;
+  }
+
+  #help a {
     background-color: inherit;
     float: none;
-}
-#help td {
-    padding: 7px;
-    font-size: 15px;
-}
+  }
+
+  hr {
+    background-color: navajowhite;
+    border: none;
+    display: block;
+    height: 1px;
+    margin: 1rem 0;
+    visibility: visible;
+  }
 </style>
 <i class="xnxf-tip" style="float: right"></i>
-<a href="javascript:;" style="float: right;" onclick="$('#help,#divMain2').slideToggle();$('.xnxf-tip').animate({opacity: 0});SetCookie('xnxf-tip', 'xnxf', 365)" title="查看/隐藏关于"><span class="m-right">[关于]</span></a>
+<a href="javascript:;" style="float: right;" onclick="$('#help,#divMain2').slideToggle();$('.xnxf-tip').animate({opacity: 0});SetCookie('xnxf-tip', '2020-06-03', 365)" title="查看/隐藏关于"><span class="m-right">[关于]</span></a>
 <div id="help" style="display:none;clear: both">
-<table>
-<tr>
-  <td>QQ：</td>
-  <td><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=349467624&site=qq&menu=yes"><img src="//wpa.qq.com/pa?p=2:349467624:51" alt="置百丈玄冰而崩裂，掷须臾池水而漂摇。" title="置百丈玄冰而崩裂，掷须臾池水而漂摇。"/></a></td>
-  <td>349467624</td>
-</tr>
-<tr>
-  <td>Q群：</td>
-  <td><a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=7a69c73adf802624837fcad9e9294a82263b94269408930501b34247ee2cbd2c"><img src="//pub.idqqimg.com/wpa/images/group.png" alt="我的咸鱼心" title="我的咸鱼心"></a></td>
-  <td>189574683</td>
-</tr>
-<tr>
-  <td>更多应用：</td>
-  <td><a href="https://app.zblogcn.com/?auth=6401c4a7-89cd-48f9-a68b-d6464d8c3bc8" title="Z-Blog 应用中心-沉冰浮水" target="_blank" rel="noopener noreferrer">Z-Blog 应用中心-沉冰浮水</a></td>
-  <td></td>
-</tr>
-<tr>
-	<td colspan="3" style="text-align: center">置百丈玄冰而崩裂，掷须臾池水而漂摇。</td>
-</tr>
-
-</table>
-<p>－－－－下边是推广链接－－－－</p>
-<p>－－<b><a title="注册 - 一览阅读" target="_blank" href="https://www.yilan.io/signup?inviteCode=59ca38d5ebdbdd981524823e">注册 - 一览阅读</a>（送7天VIP）</b>－－</p>
-<p>－－<a title="Z-Blog资讯 - 一览" target="_blank" href="http://www.yilan.io/subject/5b9ba744fcd36fbc1d1618ab">Z-Blog资讯 - 一览</a>－－</p>
-<p>－－<a title="沉冰浮水 - 一览" target="_blank" href="http://www.yilan.io/site/5b9ba575f43f90c11d460025">沉冰浮水 - 一览</a>－－</p>
+  <p>QQ：349467624 <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=349467624&amp;site=qq&amp;menu=yes" title="沉冰浮水的QQ"><img src="https://www.wdssmq.com/zb_users/logos/qq_button.png" alt="QQ" title="QQ"></a></p>
+  <p>QQ群：189574683 <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=7a69c73adf802624837fcad9e9294a82263b94269408930501b34247ee2cbd2c" title="我的咸鱼心"><img src="//pub.idqqimg.com/wpa/images/group.png" alt="我的咸鱼心" title="我的咸鱼心"></a></p>
+  <p>博客：<a target="_blank" href="https://www.wdssmq.com" title="沉冰浮水">https://www.wdssmq.com</a></p>
+  <p>Feed：<a target="_blank" href="http://feed.wdssmq.com" title="Feed">http://feed.wdssmq.com</a></p>
+  <p>bilibili：<a target="_blank" href="https://space.bilibili.com/44744006" title="bilibili">https://space.bilibili.com/44744006</a></p>
+  <p>知乎：<a target="_blank" href="https://www.zhihu.com/people/wdssmq" title="知乎">https://www.zhihu.com/people/wdssmq</a></p>
+  <p>GitHub：<a target="_blank" href="https://github.com/wdssmq" title="GitHub">https://github.com/wdssmq</a></p>
+  <p>GreasyFork：<a target="_blank" href="https://greasyfork.org/zh-CN/users/6865-wdssmq" title="GreasyFork">https://greasyfork.org/zh-CN/users/6865-wdssmq</a></p>
+  <hr>
+  <p>爱发电：<a target="_blank" href="https://afdian.net/@wdssmq" title="爱发电">https://afdian.net/@wdssmq</a></p>
+  <p>[AD：<a href="http://www.webweb.com/index.asp?upline=wdssmq" target="_blank" title="香港主机" rel="nofollow">ASP香港主机</a> 优惠码： WXXX10%OFF ]</p>
+  <p>[AD：<a title="老薛主机" target="_blank" href="https://my.laoxuehost.net/aff.php?aff=294">PHP美国空间</a> 优惠码：15off-xnxf ]</p>
+  <p>[AD：<a title="主机云" target="_blank" href="https://my.hostyun.com/page.aspx?c=referral&u=8680">主机云</a>]</p>
+  <p>[AD：<a title="Vultr" target="_blank" href="https://www.vultr.com/?ref=7663955">Vultr</a>]</p>
 </div>
 <div style="clear: both"></div>
 <script type="text/javascript">
-if(GetCookie("xnxf-tip")=="xnxf"){
-  $('.xnxf-tip').css({opacity: 0});
-}
+  if (GetCookie("xnxf-tip") == '2020-06-03') {
+    $('.xnxf-tip').css({
+      opacity: 0
+    });
+  }
 </script>

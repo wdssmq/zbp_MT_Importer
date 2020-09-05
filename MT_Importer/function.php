@@ -36,22 +36,22 @@ class MT_Import
       CountTagArrayString($article->Tag, $m, $article->ID);
     if ($article->Type == 0)
       CountMemberArray(array(
-      $article->AuthorID
-    ), array(
-      $m,
-      0,
-      0,
-      0
-    ));
+        $article->AuthorID
+      ), array(
+        $m,
+        0,
+        0,
+        0
+      ));
     elseif ($article->Type == 1)
       CountMemberArray(array(
-      $article->AuthorID
-    ), array(
-      0,
-      $m,
-      0,
-      0
-    ));
+        $article->AuthorID
+      ), array(
+        0,
+        $m,
+        0,
+        0
+      ));
     CountCategoryArray(array(
       $article->CateID
     ), $m);
@@ -129,7 +129,9 @@ class MT_Import
     }
     $this->Check_PA = true;
   }
+  // 覆盖
   public $over = false;
+  // 作为新文章
   public $asnew = false;
   function save_post(&$post, &$comments)
   {
@@ -138,8 +140,10 @@ class MT_Import
     $exist = " <b style=\"color:red\">已存在</b>；<br/><br/>";
     $skip = " <b style=\"color:gray\">未写入</b>；<br/><br/>";
     $done = " <b>写入成功</b>；<br/><br/>";
+    $isAdd = false;
     if (!$this->Check_PA)
       $this->get_PostArray();
+    // 判断同名标题
     if (in_array($post->Title, $this->PostsArray)) {
       $exPost = GetPost($post->Title);
       echo strtr($tips, array(
@@ -155,13 +159,16 @@ class MT_Import
         return;
     } else if ($post->ID !== 0) {
       $exPost = GetPost($post->ID);
-      if ($exPost->ID !== 0)
-        echo strtr($tips, array(
-        "-id-" => $exPost->ID,
-        "-link-" => $exPost->Url,
-        "-title-" => $exPost->Title
-      )) . $exist;
+      // 覆盖模式
       if ($this->over) {
+        if ($exPost->ID !== 0) {
+          echo strtr($tips, array(
+            "-id-" => $exPost->ID,
+            "-link-" => $exPost->Url,
+            "-title-" => $exPost->Title
+          )) . $exist;
+          // DelArticle_Comments($exPost->ID);
+        }
         if ($exPost->ID === 0) {
           $dataPost = array(
             'log_ID' => $post->ID,
@@ -171,7 +178,7 @@ class MT_Import
           );
           $sql = $zbp->db->sql->Insert($GLOBALS['table']['Post'], $dataPost);
           $zbp->db->Insert($sql);
-          // $exPost = $post;
+          $isAdd = true;
         }
       } else if ($this->asnew) {
         if ($post->Alias == "" || $post->Alias == $post->ID) {
@@ -179,7 +186,6 @@ class MT_Import
             $post->Alias = $this->prefix . $post->ID;
         }
         $post->ID = 0;
-        // $exPost   = $post;
       } else {
         echo strtr($tips, array(
           "-id-" => $post->ID,
@@ -189,12 +195,13 @@ class MT_Import
         return;
       }
     } else {
-      $this->PostsArray[] = $post->Title;
       $exPost = $post;
-    }
-    if ($exPost->ID !== 0) {
-      $this->mt_Build($exPost, -1);
-      DelArticle_Comments($exPost->ID);
+      echo strtr($tips, array(
+        "-id-" => $exPost->ID,
+        "-link-" => $exPost->Url,
+        "-title-" => $exPost->Title
+      )) . "<h3>理论上不会出现这个提示，出现了请联系我</h3>";
+      $this->PostsArray[] = $post->Title;
     }
     // $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
@@ -204,21 +211,23 @@ class MT_Import
       if ($k !== "ViewNums")
         $exPost->$k = $v;
     }
-    if ($post->Type === 0)
-      $exPost->CateID = $this->get_CateID($post->CateID);
-    $exPost->AuthorID = $this->get_AuthorID($post->AuthorID);
-    $exPost->Tag = PostArticle_CheckTagAndConvertIDtoString($post->Tag);
+    if ($exPost->Type === 0)
+      $exPost->CateID = $this->get_CateID($exPost->CateID);
+    $exPost->AuthorID = $this->get_AuthorID($exPost->AuthorID);
+    $exPost->Tag = PostArticle_CheckTagAndConvertIDtoString($exPost->Tag);
     $exPost->Save();
-    $this->mt_Build($exPost);
+    if ($exPost->ID == 0 || $isAdd) {
+      $this->mt_Build($exPost);
+    }
     echo strtr($tips, array(
-      "-id-" => $post->ID,
-      "-link-" => $post->Url,
-      "-title-" => $post->Title
+      "-id-" => $exPost->ID,
+      "-link-" => $exPost->Url,
+      "-title-" => $exPost->Title
     )) . $done;
     //$zbp->LoadMembers();
     foreach ($comments as $comment) {
       $comment->AuthorID = $zbp->GetMemberByName($comment->Name)->ID;
-      $comment->LogID = $post->ID;
+      $comment->LogID = $exPost->ID;
       $comment->Save();
       CountPostArray(array(
         $comment->LogID
@@ -233,8 +242,8 @@ class MT_Import
     if ($handle == null || !flock($handle, LOCK_EX | LOCK_NB))
       return false;
     $context = '';
-    $post = new Post;
-    $comment = new Comment;
+    $post = new Post();
+    $comment = new Comment();
     $comments = array();
     while ($line = fgets($handle)) {
       $line = trim($line);
@@ -242,7 +251,7 @@ class MT_Import
         // Finishing a multi-line field
         if ('comment' == $context) {
           $comments[] = $comment;
-          $comment = new Comment;
+          $comment = new Comment();
         }
         $context = '';
       } else if ('--------' == $line) {
@@ -251,7 +260,7 @@ class MT_Import
         $post->Content = trim($post->Content);
         if (!empty($post->Content) && !empty($post->Alias))
           $this->save_post($post, $comments);
-        $post = new Post;
+        $post = new Post();
         $comments = array();
       } else if ('BODY:' == $line) {
         $context = 'body';
@@ -340,7 +349,7 @@ class MT_Import
       } else {
         // Processing multi-line field, check context.
         // if (!empty($line))
-          // $line .= "\n";
+        // $line .= "\n";
         if ('body' == $context) {
           $post->Content .= $line;
         } else if ('excerpt' == $context) {
@@ -356,4 +365,3 @@ class MT_Import
     $this->fclose($handle);
   }
 }
-?>
