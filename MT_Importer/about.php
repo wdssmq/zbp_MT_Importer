@@ -45,7 +45,7 @@
   <p>QQ：349467624 <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=349467624&amp;site=qq&amp;menu=yes" title="沉冰浮水的QQ"><img src="https://www.wdssmq.com/zb_users/logos/qq_button.png" alt="QQ" title="QQ"></a></p>
   <p>QQ群：189574683 <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=7a69c73adf802624837fcad9e9294a82263b94269408930501b34247ee2cbd2c" title="我的咸鱼心"><img src="//pub.idqqimg.com/wpa/images/group.png" alt="我的咸鱼心" title="我的咸鱼心"></a></p>
   <p>博客：<a target="_blank" href="https://www.wdssmq.com" title="沉冰浮水">https://www.wdssmq.com</a></p>
-  <p>Feed：<a target="_blank" href="http://feed.wdssmq.com" title="Feed">http://feed.wdssmq.com</a></p>
+  <p>Feed：<a target="_blank" href="https://feed.wdssmq.com" title="Feed">https://feed.wdssmq.com</a></p>
   <p>bilibili：<a target="_blank" href="https://space.bilibili.com/44744006" title="bilibili">https://space.bilibili.com/44744006</a></p>
   <p>知乎：<a target="_blank" href="https://www.zhihu.com/people/wdssmq" title="知乎">https://www.zhihu.com/people/wdssmq</a></p>
   <p>GitHub：<a target="_blank" href="https://github.com/wdssmq" title="GitHub">https://github.com/wdssmq</a></p>
