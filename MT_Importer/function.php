@@ -137,9 +137,18 @@ class MT_Import
   {
     global $zbp;
     $tips = '-id-、<a href="-link-" title="-title-" target="_blank">-title-</a>';
+    $err = " <b style=\"color:red\">校验失败</b>；<br/><br/>";
     $exist = " <b style=\"color:red\">已存在</b>；<br/><br/>";
     $skip = " <b style=\"color:gray\">未写入</b>；<br/><br/>";
     $done = " <b>写入成功</b>；<br/><br/>";
+    if (strpos($post->Content, "<!--{$post->ID}-->") === false) {
+      echo strtr($tips, array(
+        "-id-" => $post->ID,
+        "-link-" => $post->Url,
+        "-title-" => $post->Title
+      )) . $err;
+      return;
+    }
     $isAdd = false;
     if (!$this->Check_PA)
       $this->get_PostArray();
@@ -205,8 +214,10 @@ class MT_Import
     }
     // $post->Content  = str_replace('&lt;br/&gt;', '<br/>', $post->Content);
     $post->Content = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Content);
+    $post->Content = str_replace('{$host}', '{#ZC_BLOG_HOST#}', $post->Content);
     // $post->Intro    = str_replace('&lt;br/&gt;', '<br/>', $post->Intro);
     $post->Intro = str_replace('<#ZC_BLOG_HOST#>', '{#ZC_BLOG_HOST#}', $post->Intro);
+    $post->Intro = str_replace('{$host}', '{#ZC_BLOG_HOST#}', $post->Intro);
     foreach ($post->GetData() as $k => $v) {
       if ($k !== "ViewNums")
         $exPost->$k = $v;
@@ -245,7 +256,7 @@ class MT_Import
     $post = new Post();
     $comment = new Comment();
     $comments = array();
-    while ($line = fgets($handle)) {
+    while ($line = $this->fgets($handle)) {
       $line = trim($line);
       if ('-----' == $line) {
         // Finishing a multi-line field
@@ -257,9 +268,7 @@ class MT_Import
       } else if ('--------' == $line) {
         // Finishing a post.
         $context = '';
-        $post->Content = trim($post->Content);
-        if (!empty($post->Content) && !empty($post->Alias))
-          $this->save_post($post, $comments);
+        $this->save_post($post, $comments);
         $post = new Post();
         $comments = array();
       } else if ('BODY:' == $line) {
