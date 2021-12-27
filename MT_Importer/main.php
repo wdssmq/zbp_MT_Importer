@@ -54,7 +54,7 @@ if ($act == 'save') {
         <h3 class="js-tips hidden">请选择一项</h3>
         <p style="margin:0 0.5em">
           <input class="check-box" type="checkbox" id="over" name="over" value="true" /> <label for="over">覆盖同 ID 文章</label><br />
-          <input class="check-box" type="checkbox" id="asnew" name="asnew" value="true" /> <label for="asnew">作为新文章追加</label> <input placeholder="别名前缀" type="text" name="prefix" value=""> <label for="prefix">别名前缀将与文章 ID 组成别名，供原站点写 301 及改版规则；</label>
+          <input class="check-box" type="checkbox" id="asnew" name="asnew" value="true" /> <label for="asnew">作为新文章追加</label> <input placeholder="别名前缀（不要用数字）" type="text" name="prefix" value=""> <label for="prefix">别名前缀将与文章 ID 组成别名，供原站点写 301 及改版规则；</label>
         </p>
         <p class="submit">
           <input type="submit" value="导入" class="button"> <a href="main.php">刷新</a>
@@ -182,3 +182,31 @@ if ($act == 'save') {
 require $blogpath . 'zb_system/admin/admin_footer.php';
 RunTime();
 ?>
+
+<!--
+
+a.com/post/10.html
+
+b.com/post/10.html
+
+各自数据库内的 id 也是 10，
+
+将 B 站数据追加进 A 站：
+
+a.com/post/10.html
+
+a.com/post/b10.html
+
+然后可以设置如下 301 对应：
+
+b.com/post/10.html → a.com/post/b10.html
+
+======
+
+所以，建议一开始就设置一个和 ID 无关的别名.jpg
+
+/post/20200617652.html
+
+或者不 care 旧域名的跳转，前缀那里填 none
+
+ -->
