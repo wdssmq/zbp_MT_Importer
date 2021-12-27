@@ -42,18 +42,19 @@ if ($act == 'save') {
   <div class="SubMenu">
     <a href="main.php"><span class="m-left <?php echo setNow("main"); ?>">首页</span></a>
     <a href="main.php?act=sync"><span class="m-left <?php echo setNow("sync"); ?>">站点同步（导入）</span></a>
-    <?php require 'about.php'; ?></div>
+    <?php require 'about.php'; ?>
+  </div>
   <div id="divMain2">
     <?php if ($act == null || $act == 'import') { ?>
-      <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType-*.txt</code> 到<code>zb_users/plugin/MT_Importer/input</code>文件夹内然后点击导入</p>
-      <p>2、相同Title的文章仅当ID也相同且勾选覆盖选项时才会作覆盖更新；</p>
-      <p>3、建议单个文件内文章数不超过300，单次导入总文章数不超过3000； </p>
+      <p>1、通过 FTP 上传您的 MT 导出文件 <code>MovableType-*.txt</code> 到 <code>zb_users/plugin/MT_Importer/input</code> 文件夹内然后点击导入</p>
+      <p>2、相同 Title 的文章仅当 ID 也相同且勾选覆盖选项时才会作覆盖更新；</p>
+      <p>3、建议单个文件内文章数不超过 300，单次导入总文章数不超过 3000； </p>
       <form class="import-upload-form" action="<?php echo BuildSafeURL("main.php?act=import"); ?>" method="post">
         <input type="hidden" value="import" name="act" />
         <h3 class="js-tips hidden">请选择一项</h3>
         <p style="margin:0 0.5em">
-          <input class="check-box" type="checkbox" id="over" name="over" value="true" /> <label for="over">覆盖同ID文章</label><br />
-          <input class="check-box" type="checkbox" id="asnew" name="asnew" value="true" /> <label for="asnew">作为新文章追加</label> <input placeholder="别名前缀" type="text" name="prefix" value=""> <label for="prefix">别名前缀将与文章ID组成别名，供原站点写301及改版规则；</label>
+          <input class="check-box" type="checkbox" id="over" name="over" value="true" /> <label for="over">覆盖同 ID 文章</label><br />
+          <input class="check-box" type="checkbox" id="asnew" name="asnew" value="true" /> <label for="asnew">作为新文章追加</label> <input placeholder="别名前缀" type="text" name="prefix" value=""> <label for="prefix">别名前缀将与文章 ID 组成别名，供原站点写 301 及改版规则；</label>
         </p>
         <p class="submit">
           <input type="submit" value="导入" class="button"> <a href="main.php">刷新</a>
@@ -76,7 +77,7 @@ if ($act == 'save') {
           $bolDo = true;
           $mt_import->prefix = trim(GetVars('prefix', 'POST'));
           if ($mt_import->prefix == "") {
-            echo "请输入前缀，确定不使用前缀请输入none";
+            echo "请输入前缀，确定不使用前缀请输入 none";
             $bolDo = false;
           }
         }
