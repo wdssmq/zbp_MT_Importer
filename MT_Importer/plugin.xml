@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin version="php">
 <id>MT_Importer</id>
-<name>MT数据格式导入【PHP】</name>
+<name>MT 数据格式导入【PHP】</name>
 <url>http://www.wdssmq.com/post/20170502785.html</url>
-<note>将MovableType数据导入ZBP</note>
+<note>将 MovableType 数据导入ZBP</note>
 <description>置百丈玄冰而崩裂，掷须臾池水而漂摇。</description>
 <path>main.php</path>
 <include>include.php</include>

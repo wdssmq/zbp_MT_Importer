@@ -12,11 +12,12 @@ if (!$zbp->CheckPlugin('MT_Importer')) {
   die();
 }
 
-$blogtitle = 'MT数据格式导入【PHP】';
+$blogtitle = 'MT 数据格式导入【PHP】';
 require $blogpath . 'zb_system/admin/admin_header.php';
 require $blogpath . 'zb_system/admin/admin_top.php';
-require_once 'function.php';
-InstallPlugin_MT_Importer();
+
+require __DIR__ . "/function.php";
+
 $act = GetVars('act', 'GET');
 $suc = GetVars('suc', 'GET');
 function setNow($class)
@@ -35,6 +36,8 @@ if ($act == 'save') {
   $zbp->SetHint('good');
   Redirect('./main.php' . $suc == null ? '' : "?act=$suc");
 }
+
+InstallPlugin_MT_Importer();
 
 ?>
 <div id="divMain">
@@ -77,8 +80,10 @@ if ($act == 'save') {
           $bolDo = true;
           $mt_import->prefix = trim(GetVars('prefix', 'POST'));
           if ($mt_import->prefix == "") {
-            echo "请输入前缀，确定不使用前缀请输入 none";
+            echo "<p>请输入前缀，确定不使用前缀请输入 none；</p>\n";
             $bolDo = false;
+          } else {
+            echo "<p>作为新文章追加；</p>\n";
           }
         }
         if ($bolDo) {

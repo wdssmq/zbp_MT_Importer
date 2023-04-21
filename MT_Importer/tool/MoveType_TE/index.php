@@ -1,7 +1,7 @@
 <?php
 /**
- * 一个用于将Typecho内容导出为MT数据格式的主题
- * 
+ * 一个用于将 Typecho 内容导出为 MT 数据格式的主题
+ *
  * @package MoveType_TE
  * @author 沉冰浮水
  * @version 1.0.0
